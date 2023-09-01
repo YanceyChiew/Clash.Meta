@@ -515,7 +515,6 @@ func ReCreateTun(tunConf LC.Tun, tcpIn chan<- C.ConnContext, udpIn chan<- C.Pack
 		if err != nil {
 			log.Errorln("Start TUN listening error: %s", err.Error())
 			tunConf.Enable = false
-			Cleanup(false)
 		}
 	}()
 
@@ -526,7 +525,10 @@ func ReCreateTun(tunConf LC.Tun, tcpIn chan<- C.ConnContext, udpIn chan<- C.Pack
 		return
 	}
 
-	Cleanup(true)
+	if tunLister != nil {
+		tunLister.Close()
+		tunLister = nil
+	}
 
 	if !tunConf.Enable {
 		return
@@ -897,9 +899,5 @@ func hasTunConfigChange(tunConf *LC.Tun) bool {
 }
 
 func Cleanup(wait bool) {
-	if tunLister != nil {
-		tunLister.Close()
-		tunLister = nil
-	}
-	LastTunConf = LC.Tun{}
+	return
 }
